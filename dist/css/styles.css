@@ -1,0 +1,61 @@
+html, body {
+    text-align: center;
+    padding: 50px auto 0;
+    font-family: "Helvetica Neue", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+#game {
+    width: 650px;
+    overflow: hidden;
+    margin: 50px auto 0;
+    position: relative;
+    clear: both;
+}
+
+.game {
+    float: left;
+    width: 500px;
+    border-bottom: 1px solid darkgray;
+    border-right: 1px solid darkgray;
+    margin: 0;
+}
+
+.game .row {
+    width: 500px;
+    height: 25px;
+    display: block;
+}
+
+.status-bar {
+    width: 150px;
+    margin: 0 0 0 500px;
+    padding: 0 0 0 15px;
+    font-weight: 300;
+    text-align: left;
+    line-height: 25px;
+}
+
+.status-bar > h1 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.field {
+    display: block;
+    float: left;
+    border-top: 1px solid darkgray;
+    border-left: 1px solid darkgray;
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.field.empty {
+    border: none;
+}
