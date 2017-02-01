@@ -8,19 +8,21 @@ import { createBoard, tic, tac } from './game.js';
 // TODO: evaluate win conditions
 // TODO: add win counter for X and O
 
-let board, currentPlayer;
+let board, currentPlayer = 1, xWinCounter = 0, oWinCounter = 0;
 if (localStorage.getItem("board") === null) {
     console.log("Initializing new game...");
     board = createBoard();
-    currentPlayer = 1;
+
 } else {
     console.log("Loading game state from local storage...");
     board = JSON.parse(localStorage.getItem("board"));
     currentPlayer = JSON.parse(localStorage.getItem("currentPlayer"));
+    xWinCounter = localStorage.getItem("xWinCounter");
+    oWinCounter = localStorage.getItem("oWinCounter");
 }
 
 ReactDOM.render(
-    <TicTacToe board={board} currentPlayer={currentPlayer} />,
+    <TicTacToe board={board} currentPlayer={currentPlayer} xWinCounter={xWinCounter} oWinCounter={oWinCounter} />,
     document.getElementById('game')
 );
 

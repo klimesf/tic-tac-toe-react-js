@@ -9506,9 +9506,13 @@ var Game = function (_React$Component) {
 
         _this.state = {
             board: props.board,
-            currentPlayer: props.currentPlayer
+            currentPlayer: props.currentPlayer,
+            gameOver: false,
+            xWinCounter: props.xWinCounter,
+            oWinCounter: props.oWinCounter
         };
-        _this._handleReset = _this._handleReset.bind(_this);
+        _this._handleResetGame = _this._handleResetGame.bind(_this);
+        _this._handleResetAll = _this._handleResetAll.bind(_this);
         return _this;
     }
 
@@ -9535,11 +9539,23 @@ var Game = function (_React$Component) {
             });
 
             var playerTurn = "";
-            if (this.state.currentPlayer == -1) {
+            if (this.state.gameOver !== false) {
+                playerTurn = (this.state.gameOver > 0 ? "X" : "O") + " won!";
+            } else if (this.state.currentPlayer == -1) {
                 playerTurn = "turn: O";
             } else {
                 playerTurn = "turn: X";
             }
+
+            var gameWonWrapper = this.state.gameOver ? _react2.default.createElement(
+                'div',
+                { className: 'game-won-wrapper', onClick: this._handleResetGame },
+                _react2.default.createElement(
+                    'span',
+                    null,
+                    playerTurn
+                )
+            ) : "";
 
             return _react2.default.createElement(
                 'div',
@@ -9547,7 +9563,8 @@ var Game = function (_React$Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'game' },
-                    rows
+                    rows,
+                    gameWonWrapper
                 ),
                 _react2.default.createElement(
                     'div',
@@ -9559,33 +9576,81 @@ var Game = function (_React$Component) {
                     ),
                     playerTurn,
                     _react2.default.createElement('br', null),
+                    'X wins: ',
+                    this.state.xWinCounter,
+                    _react2.default.createElement('br', null),
+                    'O wins: ',
+                    this.state.oWinCounter,
+                    _react2.default.createElement('br', null),
                     _react2.default.createElement(
                         'a',
-                        { onClick: this._handleReset, href: '#' },
-                        'Reset'
+                        { onClick: this._handleResetGame, href: '#' },
+                        'Reset game'
+                    ),
+                    _react2.default.createElement('br', null),
+                    _react2.default.createElement(
+                        'a',
+                        { onClick: this._handleResetAll, href: '#' },
+                        'Reset all'
                     )
                 )
             );
         }
     }, {
-        key: '_handleReset',
-        value: function _handleReset() {
+        key: '_handleResetGame',
+        value: function _handleResetGame() {
             localStorage.removeItem("board");
             localStorage.removeItem("currentPlayer");
             this.setState({
                 board: (0, _game.createBoard)(),
-                currentPlayer: 1
+                currentPlayer: 1,
+                gameOver: false,
+                xWinCounter: this.state.xWinCounter,
+                oWinCounter: this.state.oWinCounter
+            });
+        }
+    }, {
+        key: '_handleResetAll',
+        value: function _handleResetAll() {
+            localStorage.removeItem("board");
+            localStorage.removeItem("currentPlayer");
+            localStorage.removeItem("xWinCounter");
+            localStorage.removeItem("oWinCounter");
+            this.setState({
+                board: (0, _game.createBoard)(),
+                currentPlayer: 1,
+                gameOver: false,
+                xWinCounter: 0,
+                oWinCounter: 0
             });
         }
     }, {
         key: 'onPlayerInput',
         value: function onPlayerInput(x, y) {
+            var board = (0, _game.checkField)(x, y, this.state.board, this.state.currentPlayer),
+                gameOver = false,
+                xWinCounter = this.state.xWinCounter,
+                oWinCounter = this.state.oWinCounter;
+            if ((0, _game.checkIfGameIsOver)(x, y, board)) {
+                gameOver = this.state.currentPlayer;
+                console.log((gameOver > 0 ? "X" : "O") + " won!");
+                if (gameOver > 0) {
+                    ++xWinCounter;
+                } else {
+                    ++oWinCounter;
+                }
+            }
             this.setState({
-                board: (0, _game.checkField)(x, y, this.state.board, this.state.currentPlayer),
-                currentPlayer: this.state.currentPlayer * -1
+                board: board,
+                currentPlayer: this.state.currentPlayer * -1,
+                gameOver: gameOver,
+                xWinCounter: xWinCounter,
+                oWinCounter: oWinCounter
             });
             localStorage.setItem("board", JSON.stringify(this.state.board));
             localStorage.setItem("currentPlayer", JSON.stringify(this.state.currentPlayer));
+            localStorage.setItem("xWinCounter", xWinCounter);
+            localStorage.setItem("oWinCounter", oWinCounter);
         }
     }]);
 
@@ -21877,18 +21942,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // TODO: add win counter for X and O
 
 var board = void 0,
-    currentPlayer = void 0;
+    currentPlayer = 1,
+    xWinCounter = 0,
+    oWinCounter = 0;
 if (localStorage.getItem("board") === null) {
     console.log("Initializing new game...");
     board = (0, _game.createBoard)();
-    currentPlayer = 1;
 } else {
     console.log("Loading game state from local storage...");
     board = JSON.parse(localStorage.getItem("board"));
     currentPlayer = JSON.parse(localStorage.getItem("currentPlayer"));
+    xWinCounter = localStorage.getItem("xWinCounter");
+    oWinCounter = localStorage.getItem("oWinCounter");
 }
 
-_reactDom2.default.render(_react2.default.createElement(_ticTacToeReact2.default, { board: board, currentPlayer: currentPlayer }), document.getElementById('game'));
+_reactDom2.default.render(_react2.default.createElement(_ticTacToeReact2.default, { board: board, currentPlayer: currentPlayer, xWinCounter: xWinCounter, oWinCounter: oWinCounter }), document.getElementById('game'));
 
 console.log("Ready to play!");
 
@@ -21927,8 +21995,6 @@ function checkField(x, y, board, currentPlayer) {
 
     board[x][y] = currentPlayer;
 
-    checkIfGameIsOver(x, y, board);
-
     return board;
 }
 
@@ -21941,41 +22007,76 @@ function checkIfGameIsOver(x, y, board) {
         throw "Invalid coordinates.";
     }
 
-    // let sum = 0;
-    // for (let i = x; i < x + 6 && i < board.length; ++i) {
-    //     sum += board[i][y];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
-    //
-    // sum = 0;
-    // for (let i = x; i > x - 6  && i > 0; ++i) {
-    //     sum += board[i][y];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
-    //
-    // sum = 0;
-    // for (let i = y; i < y + 6 && i < board[x].length; ++i) {
-    //     sum += board[x][i];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
-    //
-    // sum = 0;
-    // for (let i = y; i > y - 6  && i > 0; ++i) {
-    //     sum += board[x][i];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
+    var sum = 0;
+    for (var i = x; i < x + 5 && i < board.length; ++i) {
+        sum += board[i][y];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i = x; _i > x - 5 && _i > 0; --_i) {
+        sum += board[_i][y];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i2 = y; _i2 < y + 5 && _i2 < board[x].length; ++_i2) {
+        sum += board[x][_i2];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i3 = y; _i3 > y - 5 && _i3 > 0; --_i3) {
+        sum += board[x][_i3];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i4 = x, j = y; _i4 > x - 5 && _i4 > 0 && j > y - 5 && j > 0; --_i4, --j) {
+        sum += board[_i4][j];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i5 = x, _j = y; _i5 < x + 5 && _i5 < board.length && _j > y - 5 && _j > 0; ++_i5, --_j) {
+        sum += board[_i5][_j];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i6 = x, _j2 = y; _i6 > x - 5 && _i6 > 0 && _j2 < y + 5 && _j2 < board.length; --_i6, ++_j2) {
+        sum += board[_i6][_j2];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (var _i7 = x, _j3 = y; _i7 < x + 5 && _i7 < board.length && _j3 < y + 5 && _j3 < board.length; ++_i7, ++_j3) {
+        sum += board[_i7][_j3];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    return false;
 }
 
 exports.createBoard = createBoard;
 exports.checkField = checkField;
+exports.checkIfGameIsOver = checkIfGameIsOver;
 
 /***/ }),
 /* 180 */

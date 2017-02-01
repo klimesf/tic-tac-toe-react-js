@@ -20,8 +20,6 @@ function checkField(x, y, board, currentPlayer) {
 
     board[x][y] = currentPlayer;
 
-    checkIfGameIsOver(x, y, board);
-
     return board;
 }
 
@@ -34,38 +32,72 @@ function checkIfGameIsOver(x, y, board) {
         throw "Invalid coordinates.";
     }
 
-    // let sum = 0;
-    // for (let i = x; i < x + 6 && i < board.length; ++i) {
-    //     sum += board[i][y];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
-    //
-    // sum = 0;
-    // for (let i = x; i > x - 6  && i > 0; ++i) {
-    //     sum += board[i][y];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
-    //
-    // sum = 0;
-    // for (let i = y; i < y + 6 && i < board[x].length; ++i) {
-    //     sum += board[x][i];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
-    //
-    // sum = 0;
-    // for (let i = y; i > y - 6  && i > 0; ++i) {
-    //     sum += board[x][i];
-    // }
-    // if (sum === 5 || sum === -5) {
-    //     return true;
-    // }
+    let sum = 0;
+    for (let i = x; i < x + 5 && i < board.length; ++i) {
+        sum += board[i][y];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
 
+    sum = 0;
+    for (let i = x; i > x - 5 && i > 0; --i) {
+        sum += board[i][y];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (let i = y; i < y + 5 && i < board[x].length; ++i) {
+        sum += board[x][i];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (let i = y; i > y - 5 && i > 0; --i) {
+        sum += board[x][i];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (let i = x, j = y; i > x - 5 && i > 0 && j > y - 5 && j > 0; --i, --j) {
+        sum += board[i][j];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (let i = x, j = y; i < x + 5 && i < board.length && j > y - 5 && j > 0; ++i, --j) {
+        sum += board[i][j];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (let i = x, j = y; i > x - 5 && i > 0 && j < y + 5 && j < board.length; --i, ++j) {
+        sum += board[i][j];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+    sum = 0;
+    for (let i = x, j = y; i < x + 5 && i < board.length && j < y + 5 && j < board.length; ++i, ++j) {
+        sum += board[i][j];
+    }
+    if (sum >= 5 || sum <= -5) {
+        return true;
+    }
+
+
+    return false;
 }
 
-export { createBoard, checkField }
+export {createBoard, checkField, checkIfGameIsOver}
