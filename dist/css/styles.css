@@ -55,7 +55,15 @@ html, body {
     height: 25px;
     line-height: 25px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 900;
+}
+
+.field.cross {
+    color: red;
+}
+
+.field.circle {
+    color: blue;
 }
 
 .field.empty {

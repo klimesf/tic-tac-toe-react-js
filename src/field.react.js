@@ -16,7 +16,10 @@ export default class Field extends React.Component {
         } else {
             value = ' ';
         }
-        return <div className="field" onClick={this._handleClick}>{value}</div>;
+
+        let className = "field " + (this.props.value > 0 ? "cross" : "circle");
+
+        return <div className={className} onClick={this._handleClick}>{value}</div>;
     }
 
     _handleClick() {

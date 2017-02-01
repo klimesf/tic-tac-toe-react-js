@@ -22127,9 +22127,12 @@ var Field = function (_React$Component) {
             } else {
                 value = ' ';
             }
+
+            var className = "field " + (this.props.value > 0 ? "cross" : "circle");
+
             return _react2.default.createElement(
                 'div',
-                { className: 'field', onClick: this._handleClick },
+                { className: className, onClick: this._handleClick },
                 value
             );
         }
